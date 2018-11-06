@@ -15,9 +15,7 @@ class Stylesheet
      */
     public function __construct($stylesheet = null)
     {
-        if (isset($stylesheet)) {
-            $this->add($stylesheet);
-        }
+        $this->add($stylesheet);
     }
 
     /**
@@ -33,6 +31,8 @@ class Stylesheet
     {
         foreach (func_get_args() as $stylesheet) {
 
+            if (!isset($stylesheet)) continue;
+            
             $styles = ($stylesheet instanceof Stylesheet)
                 ? $stylesheet->styles
                 : $stylesheet;

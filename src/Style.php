@@ -17,9 +17,7 @@ class Style
      */
     public function __construct($rules = null)
     {
-        if (isset($rules)) {
-            $this->add($rules);
-        }
+        $this->add($rules);
     }
 
     /**
@@ -34,6 +32,8 @@ class Style
     public function add($style, $_ = null)
     {
         foreach (func_get_args() as $style) {
+
+            if (!isset($style)) continue;
 
             $rules       = ($style instanceof Style)
                 ? $style->rules
