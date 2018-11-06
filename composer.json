@@ -1,0 +1,23 @@
+{
+    "name": "relaxsd/php-stylesheets",
+    "description": "Some stylesheet classes for PHP.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martijn Kriek",
+            "email": "martijn.kriek@relax-software.nl"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Relaxsd\\Stylesheets\\": "src/"
+        }
+    }
+}
