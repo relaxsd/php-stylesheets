@@ -66,15 +66,16 @@ class Style
     /**
      * Returns the value for a given attribute (e.g. 'border').
      *
-     * @param string $attribute
+     * @param string     $attribute
+     * @param mixed|null $default
      *
      * @return null|mixed The value or null if not found.
      */
-    public function getValue($attribute)
+    public function getValue($attribute, $default = null)
     {
         return array_key_exists($attribute, $this->rules)
             ? $this->rules[$attribute]
-            : null;
+            : $default;
     }
 
     /**

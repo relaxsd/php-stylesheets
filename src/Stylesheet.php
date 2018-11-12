@@ -89,6 +89,20 @@ class Stylesheet
     }
 
     /**
+     * @param string     $element
+     * @param string     $attribute
+     * @param mixed|null $default
+     *
+     * @return null|\Relaxsd\Stylesheets\Style
+     */
+    public function getValue($element, $attribute, $default = null)
+    {
+        return ($style = $this->getStyle($element))
+            ? $style->getValue($attribute, $default)
+            : $default;
+    }
+
+    /**
      * @return \Relaxsd\Stylesheets\Style[]
      */
     public function getStyles()

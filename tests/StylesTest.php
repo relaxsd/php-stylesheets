@@ -69,9 +69,11 @@ class StylesTest extends TestCase
      */
     public function it_stores_and_retrieves_values()
     {
-        $self = $this->style->addRule('NAME', 'VALUE');
-        $this->assertEquals('VALUE', $this->style->getValue('NAME'));
-        $this->assertSame($this->style, $self);
+        $style = new Style(['attribute' => 'value']);
+
+        $this->assertEquals('value', $style->getValue('attribute'));
+        $this->assertEquals('value', $style->getValue('attribute', 'some_default'));
+        $this->assertEquals('some_default', $style->getValue('nonexisting_attribute', 'some_default'));
     }
 
     /**
