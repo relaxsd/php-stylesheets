@@ -1,8 +1,7 @@
 <?php
 
-use Relaxsd\Stylesheets\Styles;
-use Relaxsd\Stylesheets\Stylesheet;
 use PHPUnit\Framework\TestCase;
+use Relaxsd\Stylesheets\Style;
 
 class StylesTest extends TestCase
 {
@@ -10,9 +9,9 @@ class StylesTest extends TestCase
     /**
      * The test subject
      *
-     * @var \Relaxsd\Stylesheets\Styles
+     * @var \Relaxsd\Stylesheets\Style
      */
-    protected $styles;
+    protected $style;
 
     /**
      * A Stylesheet mock object
@@ -26,47 +25,53 @@ class StylesTest extends TestCase
         parent::setUp();
 
         $this->stylesheetMock = $this->getMockBuilder('Relaxsd\Stylesheets\Stylesheet')->getMock();
-        $this->styles         = new Styles($this->stylesheetMock);
+        $this->style          = new Style();
     }
 
     /**
      * @test
      */
-    public function it_can_be_instantiated()
+    public function it_can_be_constructed()
     {
-        $this->assertSame($this->stylesheetMock, $this->styles->getStylesheet());
+        self::assertInstanceOf('Relaxsd\Stylesheets\Style', $this->style);
     }
 
     /**
      * @test
      */
-    public function it_merges_styles()
+    public function it_can_be_constructed_with_an_array()
     {
-        $this->styles
-            ->add('NAME1', 'VALUE1')
-            ->add('NAME2', 'VALUE2');
-
-        $newStyles = (new Styles(null))
-            ->add('NAME2', 'NEW_VALUE2')
-            ->add('NAME3', 'VALUE3');
-
-        $self = $this->styles->mergeStyles($newStyles);
-
-        $this->assertSame($this->styles, $self);
-        $this->assertEquals('VALUE1', $this->styles->getValue('NAME1'));
-        $this->assertEquals('NEW_VALUE2', $this->styles->getValue('NAME2'));
-        $this->assertEquals('VALUE3', $this->styles->getValue('NAME3'));
-
+        $rules = [
+            'attrib1' => 'value1',
+            'attrib2' => 2,
+        ];
+        $style = new Style($rules);
+        self::assertInstanceOf('Relaxsd\Stylesheets\Style', $style);
+        self::assertEquals($rules, $style->getRules());
     }
 
     /**
      * @test
      */
-    public function it_stores_and_retreives_values()
+    public function it_can_be_constructed_with_a_style()
     {
-        $self = $this->styles->add('NAME', 'VALUE');
-        $this->assertEquals('VALUE', $this->styles->getValue('NAME'));
-        $this->assertSame($this->styles, $self);
+        $rules = [
+            'attrib1' => 'value1',
+            'attrib2' => 2,
+        ];
+        $style = new Style(new Style($rules));
+        self::assertInstanceOf('Relaxsd\Stylesheets\Style', $style);
+        self::assertEquals($rules, $style->getRules());
+    }
+
+    /**
+     * @test
+     */
+    public function it_stores_and_retrieves_values()
+    {
+        $self = $this->style->addRule('NAME', 'VALUE');
+        $this->assertEquals('VALUE', $this->style->getValue('NAME'));
+        $this->assertSame($this->style, $self);
     }
 
     /**
@@ -74,11 +79,11 @@ class StylesTest extends TestCase
      */
     public function it_overwrites_existing_values()
     {
-        $this->styles
-            ->add('NAME', 'VALUE')
-            ->add('NAME', 'NEW_VALUE');
+        $this->style
+            ->addRule('NAME', 'VALUE')
+            ->addRule('NAME', 'NEW_VALUE');
 
-        $this->assertEquals('NEW_VALUE', $this->styles->getValue('NAME'));
+        $this->assertEquals('NEW_VALUE', $this->style->getValue('NAME'));
     }
 
     /**
@@ -86,7 +91,7 @@ class StylesTest extends TestCase
      */
     public function it_returns_null_for_nonexistent_values()
     {
-        $this->assertNull($this->styles->getValue('(nonexistent)'));
+        $this->assertNull($this->style->getValue('(nonexistent)'));
     }
 
     /**
@@ -94,115 +99,15 @@ class StylesTest extends TestCase
      */
     public function it_returns_all_values()
     {
-        $this->styles
-            ->add('NAME1', 'VALUE1')
-            ->add('NAME2', 'VALUE2');
+        $this->style
+            ->addRule('NAME1', 'VALUE1')
+            ->addRule('NAME2', 'VALUE2');
 
         $this->assertEquals([
             'NAME1' => 'VALUE1',
             'NAME2' => 'VALUE2',
-        ], $this->styles->getValues(false));
+        ], $this->style->getRules());
 
-    }
-
-    /**
-     * @test
-     */
-    public function it_returns_all_values_with_inherited()
-    {
-        // Mock some other Styles objects
-        $anchestorStyles1 = (new Styles($this->stylesheetMock))
-            ->add('border', 10)
-            ->add('color', 'black');
-
-        $anchestorStyles2 = (new Styles($this->stylesheetMock))
-            ->add('color', 'white')
-            ->add('underline', false);
-
-        // Expect our stylesheet to be asked for the 'ANCESTOR' Styles. Return our mock
-        $this->stylesheetMock
-            ->expects($this->exactly(2))
-            ->method('getStyles')
-            ->withConsecutive(['ANCESTOR1'], ['ANCESTOR2'])
-            ->willReturnOnConsecutiveCalls($anchestorStyles1, $anchestorStyles2);
-
-        // Set our test subject to be a descendant of 'ANCHESTOR'
-        $this->styles
-            ->extendsFrom('ANCESTOR1', 'ANCESTOR2')
-            ->add('underline', true);
-
-        // Ask for all values. This->styles should have precedence over anchestor 2, over anchestor 1.
-        $this->assertEquals([
-            'border'    => 10,      // From anchestor 1
-            'color'     => 'white', // From anchestor 2 (not 1)
-            'underline' => true     // From our styles object (not anchestor 2)
-        ], $this->styles->getValues());
-
-    }
-
-    /**
-     * @test
-     */
-    public function it_returns_a_value_from_an_anchestor()
-    {
-        // Mock a second Styles object
-        $anchestorStyles = (new Styles($this->stylesheetMock))->add('border', 10);
-
-        // Expect our stylesheet to be asked for the 'ANCESTOR' Styles. Return our mock
-        $this->stylesheetMock
-            ->expects($this->exactly(1))
-            ->method('getStyles')
-            ->with('ANCESTOR')
-            ->willReturn($anchestorStyles);
-
-        // Set our test subject to be a descendant of 'ANCHESTOR'
-        $this->styles->extendsFrom('ANCESTOR');
-
-        // Ask for the 'border' style. It should be retrieve from 'ANCHESTOR' via the stylesheet
-        $this->assertEquals(10, $this->styles->getValue('border'));
-    }
-
-    /**
-     * @test
-     */
-    public function it_stores_and_retreives_a_stylesheet()
-    {
-        $newStylesheet = new Stylesheet();
-
-        $self = $this->styles->setStylesheet($newStylesheet);
-        $this->assertSame($newStylesheet, $this->styles->getStylesheet());
-        $this->assertSame($this->styles, $self);
-    }
-
-    /**
-     * @test
-     */
-    public function it_extends_from_one_or_more_ancestors()
-    {
-        $this->assertFalse($this->styles->isDescendantOf('a'));
-
-        // Try one argument
-        $self = $this->styles->extendsFrom('a');
-        $this->assertTrue($this->styles->isDescendantOf('a'));
-        $this->assertSame($this->styles, $self);
-
-        // Try two arguments
-        $self = $this->styles->extendsFrom('b', 'c', 'd');
-        $this->assertTrue($this->styles->isDescendantOf('a'));
-        $this->assertTrue($this->styles->isDescendantOf('b'));
-        $this->assertTrue($this->styles->isDescendantOf('c'));
-        $this->assertTrue($this->styles->isDescendantOf('d'));
-        $this->assertSame($this->styles, $self);
-
-        // Try one array argument
-        $self = $this->styles->extendsFrom(['e', 'f']);
-        $this->assertTrue($this->styles->isDescendantOf('a'));
-        $this->assertTrue($this->styles->isDescendantOf('b'));
-        $this->assertTrue($this->styles->isDescendantOf('c'));
-        $this->assertTrue($this->styles->isDescendantOf('d'));
-        $this->assertTrue($this->styles->isDescendantOf('e'));
-        $this->assertTrue($this->styles->isDescendantOf('f'));
-        $this->assertSame($this->styles, $self);
     }
 
     /**
@@ -211,14 +116,11 @@ class StylesTest extends TestCase
     public function it_can_clone()
     {
         // Add a random style to out Styles
-        $this->styles->add('NAME', 'VALUE');
+        $this->style->addRule('NAME', 'VALUE');
 
-        $newStylesheet = new Stylesheet();
-
-        // Clone the Styles object, parenting to stylesheet 'NEW'
-        $copy = $this->styles->copy($newStylesheet);
-        $this->assertNotSame($this->styles, $copy);
-        $this->assertSame($newStylesheet, $copy->getStylesheet());
+        // Clone the Styles object
+        $copy = $this->style->copy();
+        $this->assertNotSame($this->style, $copy);
 
         // Check that the copy has the same style 'Name' => 'VALUE'
         $this->assertEquals('VALUE', $copy->getValue('NAME'));
@@ -227,21 +129,103 @@ class StylesTest extends TestCase
     /**
      * @test
      */
-    public function it_scales()
+    public function it_merges_styles()
     {
-        $this->styles
-            ->add('border-size', 10)
-            ->add('some-number', 20)
-            ->add('size', 3);
+        $style1 = new Style([
+            'NAME1' => 'VALUE1',
+            'NAME2' => 'VALUE2',
+        ]);
 
-        $self = $this->styles->scale(2.5);
-        $this->assertSame($this->styles, $self);
+        $style2 = new Style([
+            'NAME2' => 'NEW_VALUE2',
+            'NAME3' => 'VALUE3',
+        ]);
+
+        $self = $style1->add($style2);
+
+        $this->assertSame($style1, $self);
 
         $this->assertEquals([
-            'border-size'  => 25,
+            'NAME1' => 'VALUE1',
+            'NAME2' => 'NEW_VALUE2',
+            'NAME3' => 'VALUE3',
+        ], $style1->getRules());
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_merged_copy()
+    {
+        $rules1 = [
+            'NAME1' => 'VALUE1',
+            'NAME2' => 'VALUE2',
+        ];
+
+        $rules2 = [
+            'NAME2' => 'NEW_VALUE2',
+            'NAME3' => 'VALUE3',
+        ];
+
+        $style1 = new Style($rules1);
+        $style2 = new Style($rules2);
+        $merged = Style::merged($style1, $style2);
+
+        $this->assertNotSame($style1, $merged);
+        $this->assertNotSame($style2, $merged);
+
+        $this->assertEquals([
+            'NAME1' => 'VALUE1',
+            'NAME2' => 'NEW_VALUE2',
+            'NAME3' => 'VALUE3',
+        ], $merged->getRules());
+
+        $this->assertEquals($rules1, $style1->getRules());
+        $this->assertEquals($rules2, $style2->getRules());
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_scales()
+    {
+        $this->style
+            ->addRule('border-size', 10)
+            ->addRule('some-number', 20)
+            ->addRule('size', 3);
+
+        $self = $this->style->scale(2.5);
+        $this->assertSame($this->style, $self);
+
+        $this->assertEquals([
+            'border-size' => 25,
             'some-number' => 20, // unchanged
-            'size'         => 7.5
-        ], $this->styles->getValues());
+            'size'        => 7.5
+        ], $this->style->getRules());
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_scaled_copy()
+    {
+        $style = new Style([
+            'border-size' => 10,
+            'some-number' => 20,
+            'size'        => 3,
+        ]);
+
+        $scaled = Style::scaled($style, 2.5);
+        $this->assertNotSame($style, $scaled);
+
+        $this->assertEquals([
+            'border-size' => 25,
+            'some-number' => 20, // unchanged
+            'size'        => 7.5
+        ], $scaled->getRules());
 
     }
 }

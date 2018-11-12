@@ -5,46 +5,63 @@ namespace Relaxsd\Stylesheets;
 class Stylesheet
 {
 
-    /** @var Styles[] */
-    protected $elementStyles = [];
+    /** @var Style[] */
+    protected $styles = [];
 
     /**
-     * @param string                    $element
-     * @param \Relaxsd\Stylesheets\Styles|null $styles
+     * Stylesheet constructor.
+     *
+     * @param Stylesheet|array $stylesheet
+     */
+    public function __construct($stylesheet = null)
+    {
+        if (isset($stylesheet)) {
+            $this->add($stylesheet);
+        }
+    }
+
+    /**
+     * Adds a stylesheet to this stylesheet.
+     * To create a copy, use the static merged() method instead.
+     *
+     * @param Stylesheet|array      $stylesheet
+     * @param Stylesheet|array|null $_
      *
      * @return \Relaxsd\Stylesheets\Stylesheet
      */
-    public function addStyles($element, $styles = null)
+    public function add($stylesheet, $_ = null)
     {
-        $styles = is_null($styles)
-            ? new Styles($this)
-            : $styles->copy($this);
+        foreach (func_get_args() as $stylesheet) {
 
-        if ($existingStyles = $this->getStyles($element)) {
-            $existingStyles->mergeStyles($styles);
-        } else {
-            $this->elementStyles[$element] = $styles;
+            $styles = ($stylesheet instanceof Stylesheet)
+                ? $stylesheet->styles
+                : $stylesheet;
+
+            foreach ($styles as $element => $style) {
+                // Always add a copy of the style
+                $this->addStyle($element, Style::style($style, true));
+            }
+
         }
 
         return $this;
     }
 
     /**
-     * @param string $element
-     * @param string $name
-     * @param mixed  $value
+     * @param  string     $element
+     * @param Style|array $style
      *
-     * @return \Relaxsd\Stylesheets\Stylesheet
+     * @return $this
      */
-    public function addStyle($element, $name, $value)
+    public function addStyle($element, $style)
     {
-        $existingStyles = $this->getStyles($element);
-
-        if (!$existingStyles) {
-            $this->elementStyles[$element] = ($existingStyles = new Styles($this));
+        if (array_key_exists($element, $this->styles)) {
+            // Merge the style
+            $this->styles[$element]->add($style);
+        } else {
+            // Add the style
+            $this->styles[$element] = Style::style($style);
         }
-
-        $existingStyles->add($name, $value);
 
         return $this;
     }
@@ -56,61 +73,89 @@ class Stylesheet
      */
     public function getElements()
     {
-        return array_keys($this->elementStyles);
+        return array_keys($this->styles);
     }
 
     /**
      * @param string $element
      *
-     * @return null|\Relaxsd\Stylesheets\Styles
+     * @return null|\Relaxsd\Stylesheets\Style
      */
-    public function getStyles($element)
+    public function getStyle($element)
     {
-        return array_key_exists($element, $this->elementStyles)
-            ? $this->elementStyles[$element]
+        return array_key_exists($element, $this->styles)
+            ? $this->styles[$element]
             : null;
     }
 
     /**
-     * @param Stylesheet      $stylesheet
-     * @param Stylesheet|null $_
+     * @return \Relaxsd\Stylesheets\Style[]
+     */
+    public function getStyles()
+    {
+        return $this->styles;
+    }
+
+    /**
+     * Creates a copy of this object.
+     * Nested Style objects will also be copied to new instances.
      *
      * @return \Relaxsd\Stylesheets\Stylesheet
      */
-    public function mergeStylesheets($stylesheet, $_ = null)
+    public function copy()
     {
-        /** @var \Relaxsd\Stylesheets\Stylesheet[] $stylesheets */
-        $stylesheets = func_get_args();
+        return new static(array_map(function (Style $style) {
+            return $style->copy();
+        }, $this->styles));
+    }
 
-        foreach ($stylesheets as $stylesheet) {
-            $elements = $stylesheet->getElements();
-            foreach ($elements as $element) {
-                $this->addStyles($element, $stylesheet->getStyles($element));
-            }
+    /**
+     * Scales all styles within this stylesheet.
+     * To create a copy, use the static scaled() method instead.
+     *
+     * @param float      $factorH
+     * @param float|null $factorV
+     *
+     * @return $this
+     */
+    public function scale($factorH, $factorV = null)
+    {
+        foreach ($this->styles as $styles) {
+            $styles->scale($factorH, $factorV);
         }
+
         return $this;
     }
 
     /**
-     * @param Stylesheet      $stylesheet
-     * @param Stylesheet|null $_
+     * Returns a scaled copy of this stylesheet.
      *
-     * @return \Relaxsd\Stylesheets\Stylesheet
+     * @param Stylesheet|array $stylesheet
+     * @param float            $factorH
+     * @param float|null       $factorV
+     *
+     * @return $this
      */
-    public static function merge($stylesheet, $_ = null)
+    public static function scaled($stylesheet, $factorH, $factorV = null)
     {
-        return call_user_func_array([new Stylesheet(), "mergeStylesheets"], func_get_args());
+        return (new static($stylesheet))->scale($factorH, $factorV);
     }
 
     /**
-     * @param float $factorH
-     * @param float $factorV
+     * Returns a copy of a stylesheet
+     *
+     * @param Stylesheet|array      $stylesheet
+     * @param Stylesheet|array|null $_
+     *
+     * @return \Relaxsd\Stylesheets\Stylesheet
      */
-    public function scale($factorH, $factorV)
+    public static function merged($stylesheet, $_)
     {
-        foreach ($this->elementStyles as $styles) {
-            $styles->scale($factorH, $factorV);
-        }
+        $stylesheets = func_get_args();
+
+        $stylesheet = array_shift($stylesheets);
+
+        return call_user_func_array([new static($stylesheet), 'add'], $stylesheets);
     }
 
 }
