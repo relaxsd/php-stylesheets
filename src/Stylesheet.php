@@ -32,7 +32,7 @@ class Stylesheet
         foreach (func_get_args() as $stylesheet) {
 
             if (!isset($stylesheet)) continue;
-            
+
             $styles = ($stylesheet instanceof Stylesheet)
                 ? $stylesheet->styles
                 : $stylesheet;
@@ -156,6 +156,21 @@ class Stylesheet
         $stylesheet = array_shift($stylesheets);
 
         return call_user_func_array([new static($stylesheet), 'add'], $stylesheets);
+    }
+
+    /**
+     * Returns the Stylesheet or creates a new Stylesheet if an array was passed
+     *
+     * @param Stylesheet|array $stylesheet
+     * @param bool             $copy
+     *
+     * @return \Relaxsd\Stylesheets\Stylesheet
+     */
+    public static function stylesheet($stylesheet, $copy = false)
+    {
+        return ($copy || is_array($stylesheet))
+            ? new Stylesheet($stylesheet)
+            : $stylesheet;
     }
 
 }
