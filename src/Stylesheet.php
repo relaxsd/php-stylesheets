@@ -83,9 +83,19 @@ class Stylesheet
      */
     public function getStyle($element)
     {
-        return array_key_exists($element, $this->styles)
+        return $this->hasStyle($element)
             ? $this->styles[$element]
             : null;
+    }
+
+    /**
+     * @param string $element
+     *
+     * @return null|\Relaxsd\Stylesheets\Style
+     */
+    public function hasStyle($element)
+    {
+        return array_key_exists($element, $this->styles);
     }
 
     /**

@@ -73,9 +73,19 @@ class Style
      */
     public function getValue($attribute, $default = null)
     {
-        return array_key_exists($attribute, $this->rules)
+        return $this->hasValue($attribute)
             ? $this->rules[$attribute]
             : $default;
+    }
+
+    /**
+     * @param string     $attribute
+     *
+     * @return null|mixed The value or null if not found.
+     */
+    public function hasValue($attribute)
+    {
+        return array_key_exists($attribute, $this->rules);
     }
 
     /**
