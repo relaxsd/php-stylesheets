@@ -79,7 +79,7 @@ class Style
     }
 
     /**
-     * @param string     $attribute
+     * @param string $attribute
      *
      * @return null|mixed The value or null if not found.
      */
@@ -160,6 +160,22 @@ class Style
         return ($copy || is_array($style))
             ? new Style($style)
             : $style;
+    }
+
+    /**
+     * Returns the value for a given attribute (e.g. 'border').
+     *
+     * @param \Relaxsd\Stylesheets\Style $style
+     * @param string                     $attribute
+     * @param mixed|null                 $default
+     *
+     * @return null|mixed The value or null if not found.
+     */
+    public static function value($style, $attribute, $default = null)
+    {
+        return (isset($style))
+            ? $style->getValue($attribute, $default)
+            : $default;
     }
 
     private static function endsWith($haystack, $needle)

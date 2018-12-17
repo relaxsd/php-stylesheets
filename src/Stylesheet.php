@@ -107,9 +107,7 @@ class Stylesheet
      */
     public function getValue($element, $attribute, $default = null)
     {
-        return ($style = $this->getStyle($element))
-            ? $style->getValue($attribute, $default)
-            : $default;
+        return Style::value($this->getStyle($element), $attribute, $default);
     }
 
     /**
