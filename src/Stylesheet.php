@@ -124,7 +124,7 @@ class Stylesheet
      * Creates a copy of this object.
      * Nested Style objects will also be copied to new instances.
      *
-     * @return \Relaxsd\Stylesheets\Stylesheet
+     * @return self
      */
     public function copy()
     {
@@ -158,7 +158,7 @@ class Stylesheet
      * @param float            $factorH
      * @param float|null       $factorV
      *
-     * @return $this
+     * @return self
      */
     public static function scaled($stylesheet, $factorH, $factorV = null)
     {
@@ -171,7 +171,7 @@ class Stylesheet
      * @param Stylesheet|array      $stylesheet
      * @param Stylesheet|array|null $_
      *
-     * @return \Relaxsd\Stylesheets\Stylesheet
+     * @return self
      */
     public static function merged($stylesheet, $_)
     {
@@ -188,7 +188,7 @@ class Stylesheet
      * @param Stylesheet|array $stylesheet
      * @param bool             $copy
      *
-     * @return \Relaxsd\Stylesheets\Stylesheet
+     * @return self
      */
     public static function stylesheet($stylesheet, $copy = false)
     {
