@@ -6,4 +6,5 @@ interface BorderWidth
 {
 
     const ATTRIBUTE = 'border-width';
+
 }

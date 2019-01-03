@@ -6,4 +6,5 @@ interface BorderColor
 {
 
     const ATTRIBUTE = 'border-color';
+
 }

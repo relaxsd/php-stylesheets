@@ -4,6 +4,7 @@ namespace Relaxsd\Stylesheets\Attributes;
 
 interface FontStyle
 {
+
     const ATTRIBUTE = 'font-style';
 
     const NORMAL = '';
