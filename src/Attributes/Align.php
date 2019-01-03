@@ -4,6 +4,7 @@ namespace Relaxsd\Stylesheets\Attributes;
 
 interface Align
 {
+
     const ATTRIBUTE = 'align';
 
     const LEFT = 'left';

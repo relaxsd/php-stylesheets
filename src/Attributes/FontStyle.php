@@ -4,11 +4,17 @@ namespace Relaxsd\Stylesheets\Attributes;
 
 interface FontStyle
 {
+
     const ATTRIBUTE = 'font-style';
 
-    const FONT_STYLE_NORMAL = '';
-    const FONT_STYLE_BOLD = 'bold';
-    const FONT_STYLE_ITALIC = 'italic';
-    const FONT_STYLE_UNDERLINE = 'underline';
+    const NORMAL = '';
+    const BOLD = 'bold';
+    const ITALIC = 'italic';
+    const UNDERLINE = 'underline';
+
+    const BOLD_ITALIC = 'bold,italic';
+    const BOLD_UNDERLINE = 'bold,underline';
+    const ITALIC_UNDERLINE = 'italic,underline';
+    const BOLD_ITALIC_UNDERLINE = 'bold,italic,underline';
 
 }

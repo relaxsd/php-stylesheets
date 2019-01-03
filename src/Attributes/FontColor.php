@@ -2,9 +2,9 @@
 
 namespace Relaxsd\Stylesheets\Attributes;
 
-interface FillColor
+interface FontColor
 {
 
-    const ATTRIBUTE = 'fill-color';
+    const ATTRIBUTE = 'font-color';
 
 }
