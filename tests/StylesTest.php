@@ -69,9 +69,11 @@ class StylesTest extends TestCase
      */
     public function it_stores_and_retrieves_values()
     {
-        $self = $this->style->addRule('NAME', 'VALUE');
-        $this->assertEquals('VALUE', $this->style->getValue('NAME'));
-        $this->assertSame($this->style, $self);
+        $style = new Style(['attribute' => 'value']);
+
+        $this->assertEquals('value', $style->getValue('attribute'));
+        $this->assertEquals('value', $style->getValue('attribute', 'some_default'));
+        $this->assertEquals('some_default', $style->getValue('nonexisting_attribute', 'some_default'));
     }
 
     /**
@@ -228,4 +230,30 @@ class StylesTest extends TestCase
         ], $scaled->getRules());
 
     }
+
+    /**
+     * @test
+     */
+    public function it_converts_an_array_to_style()
+    {
+
+        $arr   = ['border-size' => 25];
+        $style = new Style($arr);
+
+        // Convert array to style
+        $fromArray = Style::style($arr);
+        $this->assertEquals($style, $fromArray);
+        $this->assertNotSame($style, $fromArray);
+
+        // Just return the style instance
+        $fromStyle = Style::style($style);
+        $this->assertSame($style, $fromStyle);
+
+        // Return a copy of the style
+        $fromStyleCopy = Style::style($style, true);
+        $this->assertNotSame($style, $fromStyleCopy);
+        $this->assertEquals($style, $fromStyleCopy);
+
+    }
+
 }

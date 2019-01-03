@@ -259,4 +259,42 @@ class StylesheetTest extends TestCase
 
     }
 
+    /**
+     * @test
+     */
+    public function it_converts_an_array_to_stylesheet()
+    {
+
+        $arr = [ 'element' => ['border-size' => 25]];
+        $stylesheet = new Stylesheet($arr);
+
+        // Convert array to stylesheet
+        $fromArray = Stylesheet::stylesheet($arr);
+        $this->assertEquals($stylesheet, $fromArray);
+        $this->assertNotSame($stylesheet, $fromArray);
+
+        // Just return the stylesheet instance
+        $fromStylesheet= Stylesheet::stylesheet($stylesheet);
+        $this->assertSame($stylesheet, $fromStylesheet);
+
+        // Return a copy of the stylesheet
+        $fromStylesheetCopy= Stylesheet::stylesheet($stylesheet, true);
+        $this->assertNotSame($stylesheet, $fromStylesheetCopy);
+        $this->assertEquals($stylesheet, $fromStylesheetCopy);
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_stores_and_retrieves_values()
+    {
+        $stylesheet = new Stylesheet(['element'=> ['attribute' => 'value']]);
+
+        $this->assertEquals('value', $stylesheet->getValue('element', 'attribute'));
+        $this->assertEquals('value', $stylesheet->getValue('element', 'attribute', 'some_default'));
+        $this->assertEquals('some_default', $stylesheet->getValue('nonexisting_element', 'attribute', 'some_default'));
+        $this->assertEquals('some_default', $stylesheet->getValue('element', 'nonexisting_attribute', 'some_default'));
+    }
+
 }

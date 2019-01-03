@@ -17,9 +17,7 @@ class Style
      */
     public function __construct($rules = null)
     {
-        if (isset($rules)) {
-            $this->add($rules);
-        }
+        $this->add($rules);
     }
 
     /**
@@ -34,6 +32,8 @@ class Style
     public function add($style, $_ = null)
     {
         foreach (func_get_args() as $style) {
+
+            if (!isset($style)) continue;
 
             $rules       = ($style instanceof Style)
                 ? $style->rules
@@ -66,15 +66,26 @@ class Style
     /**
      * Returns the value for a given attribute (e.g. 'border').
      *
+     * @param string     $attribute
+     * @param mixed|null $default
+     *
+     * @return null|mixed The value or null if not found.
+     */
+    public function getValue($attribute, $default = null)
+    {
+        return $this->hasValue($attribute)
+            ? $this->rules[$attribute]
+            : $default;
+    }
+
+    /**
      * @param string $attribute
      *
      * @return null|mixed The value or null if not found.
      */
-    public function getValue($attribute)
+    public function hasValue($attribute)
     {
-        return array_key_exists($attribute, $this->rules)
-            ? $this->rules[$attribute]
-            : null;
+        return array_key_exists($attribute, $this->rules);
     }
 
     /**
@@ -149,6 +160,22 @@ class Style
         return ($copy || is_array($style))
             ? new Style($style)
             : $style;
+    }
+
+    /**
+     * Returns the value for a given attribute (e.g. 'border').
+     *
+     * @param \Relaxsd\Stylesheets\Style $style
+     * @param string                     $attribute
+     * @param mixed|null                 $default
+     *
+     * @return null|mixed The value or null if not found.
+     */
+    public static function value($style, $attribute, $default = null)
+    {
+        return (isset($style))
+            ? $style->getValue($attribute, $default)
+            : $default;
     }
 
     private static function endsWith($haystack, $needle)
