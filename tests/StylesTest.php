@@ -196,7 +196,9 @@ class StylesTest extends TestCase
         $this->style
             ->addRule('border-size', 10)
             ->addRule('some-number', 20)
-            ->addRule('size', 3);
+            ->addRule('size', 3)
+            ->addRule('height', 3)
+            ->addRule('line-height', 3);
 
         $self = $this->style->scale(2.5);
         $this->assertSame($this->style, $self);
@@ -204,7 +206,9 @@ class StylesTest extends TestCase
         $this->assertEquals([
             'border-size' => 25,
             'some-number' => 20, // unchanged
-            'size'        => 7.5
+            'size'        => 7.5,
+            'height'      => 7.5,
+            'line-height' => 7.5
         ], $this->style->getRules());
 
     }
@@ -218,6 +222,8 @@ class StylesTest extends TestCase
             'border-size' => 10,
             'some-number' => 20,
             'size'        => 3,
+            'height'      => 3,
+            'line-height' => 3
         ]);
 
         $scaled = Style::scaled($style, 2.5);
@@ -226,7 +232,9 @@ class StylesTest extends TestCase
         $this->assertEquals([
             'border-size' => 25,
             'some-number' => 20, // unchanged
-            'size'        => 7.5
+            'size'        => 7.5,
+            'height'      => 7.5,
+            'line-height' => 7.5
         ], $scaled->getRules());
 
     }

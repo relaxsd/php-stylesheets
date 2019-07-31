@@ -109,7 +109,7 @@ class Style
         $factorV = isset($factorV) ? $factorV : $factorH;
 
         foreach ($this->rules as $attribute => &$value) {
-            if ($attribute == 'size' || self::endsWith($attribute, '-size')) {
+            if ($attribute == 'size' || self::endsWith($attribute, '-size') || $attribute == 'height' || self::endsWith($attribute, '-height')) {
                 $value *= $factorH;
             }
         }
