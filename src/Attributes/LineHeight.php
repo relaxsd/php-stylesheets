@@ -9,6 +9,7 @@ interface LineHeight
 
     const NORMAL = 'normal';
 
-    const DEFAULT_VALUE = 1.0;  // Multiply by font size to get line height
+    // The default line height in most browsers is about 110% to 120%.
+    const DEFAULT_VALUE = 1.15;  // Multiply by font size to get line height
 
 }
